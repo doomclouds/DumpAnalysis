@@ -22,6 +22,7 @@ public static class Program
         ("07", "deadlock",    "thread deadlock (crossed lock ordering)",    Scenario07_Deadlock.Run),
         ("08", "stack-overflow", "stack overflow (unbounded recursion)",    Scenario08_StackOverflow.Run),
         ("09", "access-violation", "access violation (null pointer AV)",    Scenario09_AccessViolation.Run),
+        ("10", "sync-over-async",  "thread-pool starvation (sync-over-async)", Scenario10_SyncOverAsync.Run),
     };
 
     public static int Main(string[] args)
