@@ -27,6 +27,12 @@
 | 09 | access-violation | 访问违例：P/Invoke 传坏指针 → 原生 `0xC0000005` | `!analyze -v`、`kb`（faulting address）|
 | 10 | sync-over-async | 线程池饥饿：`.GetResult()` 阻塞 async 续体 | `~*k`、`!clrstack`（`Task.Wait` 链）|
 
+**性能类（12）**
+
+| # | 场景 | 问题 | 签名命令 |
+|---|---|---|---|
+| 12 | cpu-hotspot | CPU 热点：热循环字符串格式化 → 1 核 + 1.3GB/s 分配 | `dotnet-counters`、`dotnet-trace report topN` |
+
 配套方法：**两次转储 diff 法**（`docs/case-diff.md`）——不预知代码，用 t1/t2 两份 dump 对比出"谁在涨"。
 
 ## 仓库结构
@@ -38,7 +44,8 @@ DumpAnalysis/
 ├── README.md                   # 本文件
 ├── docs/
 │   ├── WINDBG-MCP-GUIDE.md     # ★ WinDbg MCP 完整教程
-│   ├── case-01.md … case-11.md # 每个场景的分析剧本
+│   ├── PERF-ANALYSIS-GUIDE.md  # ★ dotnet-counters / dotnet-trace 性能分析指南
+│   ├── case-01.md … case-12.md # 每个场景的分析剧本
 │   └── case-diff.md            # 两次转储 diff 法
 ├── src/DumpAnalysis/           # 单工程，含全部场景（任务调度式）
 │   ├── Program.cs              # 入口：按场景名分发到 Run(...)
@@ -87,7 +94,8 @@ dotnet-dump collect -p <PID> -o leak.dmp
 ## 文档
 
 - **教程**：[docs/WINDBG-MCP-GUIDE.md](docs/WINDBG-MCP-GUIDE.md) —— mcp-windbg 安装、工具清单、前置、标准流程、SOS 速查、符号与超时坑
-- **场景剧本**：`docs/case-01.md` … `case-11.md`
+- **性能指南**：[docs/PERF-ANALYSIS-GUIDE.md](docs/PERF-ANALYSIS-GUIDE.md) —— dotnet-counters / dotnet-trace / gcdump 工具链 + 定位热点方法论
+- **场景剧本**：`docs/case-01.md` … `case-12.md`
 - **方法论**：[docs/case-diff.md](docs/case-diff.md)
 
 ## License

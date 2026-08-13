@@ -24,6 +24,7 @@ public static class Program
         ("09", "access-violation", "access violation (null pointer AV)",    Scenario09_AccessViolation.Run),
         ("10", "sync-over-async",  "thread-pool starvation (sync-over-async)", Scenario10_SyncOverAsync.Run),
         ("11", "timer-leak",       "Timer leak (System.Threading.Timer never disposed)", Scenario11_TimerLeak.Run),
+        ("12", "cpu-hotspot",      "CPU hotspot (hidden bottleneck)",                  Scenario12_CpuHotspot.Run),
     };
 
     public static int Main(string[] args)
