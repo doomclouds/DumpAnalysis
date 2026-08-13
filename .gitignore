@@ -1,0 +1,14 @@
+# .NET build output
+bin/
+obj/
+*.user
+.vs/
+
+# Dump artifacts (large binary captures - keep them out of source control)
+dumps/
+*.dmp
+*.nettrace
+*.binlog
+
+# Logs
+*.log
