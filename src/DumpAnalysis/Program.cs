@@ -21,6 +21,7 @@ public static class Program
         ("06", "gchandle",    "GC handle leak (GCHandle never freed)",      Scenario06_GCHandleLeak.Run),
         ("07", "deadlock",    "thread deadlock (crossed lock ordering)",    Scenario07_Deadlock.Run),
         ("08", "stack-overflow", "stack overflow (unbounded recursion)",    Scenario08_StackOverflow.Run),
+        ("09", "access-violation", "access violation (null pointer AV)",    Scenario09_AccessViolation.Run),
     };
 
     public static int Main(string[] args)
