@@ -1,6 +1,6 @@
 # DumpAnalysis
 
-经典 .NET 内存问题复现场景 + **用 WinDbg MCP（cdb + SOS）分析 dump** 的教学仓库。
+经典 .NET 内存问题复现场景 + **用 [WinDbg MCP](https://github.com/svnscha/mcp-windbg)（cdb + SOS）分析 dump** 的教学仓库。
 
 每个场景是一个小型的 .NET 10 控制台程序，稳定复现一类经典内存问题；配套文档从「怎么复现」到「抓 dump」到「用 SOS 命令一步步定位根因」全流程教一遍。跑完六个场景，你就掌握了托管内存分析的基本功。
 
@@ -70,11 +70,11 @@ dotnet-dump collect -p <PID> -o leak.dmp
 - .NET 10 SDK（`dotnet --list-sdks`）
 - `dotnet-dump`（抓取转储）或 Sysinternals `procdump`
 - WinDbg / Debugging Tools for Windows（`cdb.exe`）
-- WinDbg MCP 服务器（`mcp-windbg`）已接入 Claude Code
+- WinDbg MCP 服务器（[`mcp-windbg`](https://github.com/svnscha/mcp-windbg)）——安装见 [docs/WINDBG-MCP-GUIDE.md](docs/WINDBG-MCP-GUIDE.md) 第 2 节
 
 ## 文档
 
-- **教程**：[docs/WINDBG-MCP-GUIDE.md](docs/WINDBG-MCP-GUIDE.md) —— 工具清单、前置、标准流程、SOS 速查、符号与超时坑
+- **教程**：[docs/WINDBG-MCP-GUIDE.md](docs/WINDBG-MCP-GUIDE.md) —— mcp-windbg 安装、工具清单、前置、标准流程、SOS 速查、符号与超时坑
 - **场景剧本**：`docs/case-01.md` … `case-06.md`
 - **方法论**：[docs/case-diff.md](docs/case-diff.md)
 
