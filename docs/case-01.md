@@ -73,3 +73,43 @@ MCP 映射：
 
 - 给缓存加容量上限 + 淘汰策略（LRU）；或用 `WeakReference<T>` / `ConditionalWeakTable`；或明确移除不再需要的元素。
 - 修好后再抓 dump，`!dumpheap -stat` 中 `StaticLeakItem` 计数不再随运行时间增长。
+
+## 8. 本次实测结果（leak01.dmp，dotnet-dump 464MB）
+
+进程日志（512KB/条、100ms/条）：
+
+```
+  items=    100  managedHeap=  50.1 MB  ws=  72.1 MB  elapsed=  10.8s
+  items=    200  managedHeap= 100.1 MB  ws= 122.7 MB  elapsed=  21.6s
+  items=    300  managedHeap= 150.1 MB  ws= 172.6 MB  elapsed=  32.5s
+  items=    400  managedHeap= 200.2 MB  ws= 222.6 MB  elapsed=  43.3s
+  items=    500  managedHeap= 250.2 MB  ws= 272.6 MB  elapsed=  54.2s
+  items=    600  managedHeap= 300.2 MB  ws= 323.4 MB  elapsed=  65.0s
+  items=    700  managedHeap= 350.2 MB  ws= 450.7 MB  elapsed=  76.6s
+```
+
+（dump 在 ~68s 抓取，捕获 684 个实例。）
+
+SOS 关键输出：
+
+- **`!eeheap -gc`** → Small object heap（gen0/1/2）合计仅 ~200KB；**Large object heap 11 个段、合计 ~342MB**（GC 总堆 358,869,752 字节）。512KB 的 `Data` 越过 85KB 阈值，全部进 LOH。
+- **`!dumpheap -stat`** →
+  ```
+  DumpAnalysis.StaticLeakItem     684         32,832
+  DumpAnalysis.StaticLeakItem[]     2          8,240   ← List 底层数组（扩容过）
+  System.Byte[]                   686    358,633,040   ← 主导：684 个 512KB payload
+  System.String                   894        112,848   ← Description
+  ```
+- **`!dumpheap -type System.Byte[] -min 85000 -stat`** → **684 个 / 358,629,408 字节**，每个 524,288 字节（=512KB），全部 ≥ 85KB → 全在 LOH。
+- **`!do <StaticLeakItem 01d80a8020c8>`** → 字段 `Id=7`、`Description`、`CreatedAt`、`Data`（指向 `byte[]`）。`!do` 该 `Data` → `Size 524312(0x80018)`、`524288 elements`、内容 `ZZZ…`（0x5A 填充，触页提交）。
+- **`!gcroot 01d80a8020c8`** →
+  ```
+  HandleTable:
+      000001d8084a13e8 (strong handle)         ← 静态字段承载句柄
+           -> 01d808800028  System.Object[]    ← 静态数据
+           -> 01d80b00d220  List<StaticLeakItem>   ← 即 static Program.Cache
+           -> 01d80d418d00  StaticLeakItem[]   ← List 底层数组
+           -> 01d80a8020c8  StaticLeakItem
+  ```
+  根链终止于**静态 `Cache`**（`HandleTable → Object[] → List → 数组 → 对象`），与第 2 节的机理图完全一致。
+- **判定闭环**：LOH 大 `byte[]` 数(684) = `StaticLeakItem` 实例数(684)，684 × 512KB ≈ 342MB，实锤「每个对象拖着一个 512KB LOH 缓冲区，被静态 `Cache` 永久强引用」。
