@@ -6,6 +6,8 @@
 
 ## 它教什么
 
+**内存泄漏类（01–06）**
+
 | # | 场景 | 问题 | 签名命令 |
 |---|---|---|---|
 | 01 | static-leak | 托管堆泄漏：静态集合无限增长（gen2 + LOH） | `!dumpheap -stat`、`!gcroot`、`!eeheap -gc` |
@@ -14,6 +16,16 @@
 | 04 | loh-frag | LOH 碎片化：2MB 洞 + 2.5MB 请求 → Free 空洞无法复用 | `!dumpheap -type Free`、`!eeheap -gc` |
 | 05 | native-leak | 非托管泄漏：`Marshal.AllocHGlobal` 从不 Free → 原生私有提交增长 | `!address -summary`、`!heap -s` |
 | 06 | gchandle | GC 句柄泄漏：`GCHandle.Alloc` 从不 Free → 句柄表强扣对象 | `!gchandles`、`!gcroot` |
+| 11 | timer-leak | Timer 泄漏：静态根住 + 从不 Dispose → 定时器队列扣住状态 | `!dumpheap -stat`（`Timer/TimerQueueTimer`）、`!gcroot` |
+
+**故障类（07–10）**
+
+| # | 场景 | 问题 | 签名命令 |
+|---|---|---|---|
+| 07 | deadlock | 死锁：两线程交叉持锁互等 → 永久阻塞 | `!threads`、`~*k`、`!syncblk`、`!clrstack` |
+| 08 | stack-overflow | 栈溢出：无界递归 → 进程崩溃 | `!analyze -v`、`k`（深递归帧）|
+| 09 | access-violation | 访问违例：P/Invoke 传坏指针 → 原生 `0xC0000005` | `!analyze -v`、`kb`（faulting address）|
+| 10 | sync-over-async | 线程池饥饿：`.GetResult()` 阻塞 async 续体 | `~*k`、`!clrstack`（`Task.Wait` 链）|
 
 配套方法：**两次转储 diff 法**（`docs/case-diff.md`）——不预知代码，用 t1/t2 两份 dump 对比出"谁在涨"。
 
@@ -26,7 +38,7 @@ DumpAnalysis/
 ├── README.md                   # 本文件
 ├── docs/
 │   ├── WINDBG-MCP-GUIDE.md     # ★ WinDbg MCP 完整教程
-│   ├── case-01.md … case-06.md # 每个场景的分析剧本
+│   ├── case-01.md … case-11.md # 每个场景的分析剧本
 │   └── case-diff.md            # 两次转储 diff 法
 ├── src/DumpAnalysis/           # 单工程，含全部场景（任务调度式）
 │   ├── Program.cs              # 入口：按场景名分发到 Run(...)
@@ -75,7 +87,7 @@ dotnet-dump collect -p <PID> -o leak.dmp
 ## 文档
 
 - **教程**：[docs/WINDBG-MCP-GUIDE.md](docs/WINDBG-MCP-GUIDE.md) —— mcp-windbg 安装、工具清单、前置、标准流程、SOS 速查、符号与超时坑
-- **场景剧本**：`docs/case-01.md` … `case-06.md`
+- **场景剧本**：`docs/case-01.md` … `case-11.md`
 - **方法论**：[docs/case-diff.md](docs/case-diff.md)
 
 ## License
