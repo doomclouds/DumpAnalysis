@@ -19,6 +19,7 @@ public static class Program
         ("04", "loh-frag",    "LOH fragmentation (Free holes)",             Scenario04_LohFragmentation.Run),
         ("05", "native-leak", "unmanaged memory leak (AllocHGlobal)",       Scenario05_NativeMemoryLeak.Run),
         ("06", "gchandle",    "GC handle leak (GCHandle never freed)",      Scenario06_GCHandleLeak.Run),
+        ("07", "deadlock",    "thread deadlock (crossed lock ordering)",    Scenario07_Deadlock.Run),
     };
 
     public static int Main(string[] args)
