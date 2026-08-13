@@ -23,6 +23,7 @@ public static class Program
         ("08", "stack-overflow", "stack overflow (unbounded recursion)",    Scenario08_StackOverflow.Run),
         ("09", "access-violation", "access violation (null pointer AV)",    Scenario09_AccessViolation.Run),
         ("10", "sync-over-async",  "thread-pool starvation (sync-over-async)", Scenario10_SyncOverAsync.Run),
+        ("11", "timer-leak",       "Timer leak (System.Threading.Timer never disposed)", Scenario11_TimerLeak.Run),
     };
 
     public static int Main(string[] args)
